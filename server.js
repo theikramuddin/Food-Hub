@@ -5,6 +5,9 @@ const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const PORT = process.env.PORT || 4000;
 
+//Assests
+app.use(express.static('public'));
+
 app.get('/', (req, res) => {
     res.render('home')
 })
