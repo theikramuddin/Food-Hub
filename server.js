@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const flash = require('express-flash');
 const MongoStore = require('connect-mongo');
-// const passport = require('passport');
+const passport = require('passport');
 
 // Database Connection
 const url = 'mongodb://localhost/food';
@@ -33,11 +33,11 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 } // valid for 24 hours cookies
 }));
 
-//Passport config
-// const passportInit =require('./app/config/passport');
-// passportInit(passport);
-// app.use(passport.initialize());
-// app.use(passport.session());
+// Passport config
+const passportInit =require('./app/config/passport');
+passportInit(passport);
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(flash());
 
