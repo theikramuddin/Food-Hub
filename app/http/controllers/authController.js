@@ -2,6 +2,11 @@ const passport = require('passport');
 const User = require('../../models/user')
 const bcrypt = require('bcrypt')
 function authController() {
+
+    const _getRedirectUrl = (req) => {
+        return req.user.role === 'admin' ? '/admin/orders' : '/customer/orders';
+    }
+
     return {
         login(req, res) {
             res.render('auth/login')
@@ -14,6 +19,9 @@ function authController() {
                 req.flash('error', 'All fields are required');
                 return res.redirect('/login');
             }
+
+            // Save guest cart before login
+            let guestCart = req.session.cart;
 
             passport.authenticate('local', (err, user, info) => {
                 if (err) {
@@ -32,7 +40,12 @@ function authController() {
                         return next(err);
                     }
 
-                    return res.redirect('/');
+                    // Restore cart after login
+                    if (guestCart) {
+                        req.session.cart = guestCart;
+                    }
+
+                    return res.redirect(_getRedirectUrl(req));
                 })
             })(req, res, next);
 
@@ -78,14 +91,14 @@ function authController() {
 
         },
         logout(req, res, next) {
-            req.logout(function(err) {
+            req.logout(function (err) {
                 if (err) {
                     return next(err);
                 }
                 res.redirect('/login');
             });
         }
-        
+
     }
 }
 module.exports = authController;
