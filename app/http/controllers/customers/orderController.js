@@ -18,21 +18,22 @@ function orderController() {
                 address
             });
 
-            order.save().then(result => {
-                Order.populate(result, { path: 'customerId' }, (err, placedOrder) => {
+            order.save()
+                .then(async (result) => {
+                    let placedOrder = await result.populate('customerId').execPopulate(); // ✅ Modern way
                     req.flash('success', 'Order placed successfully');
-                    delete req.session.cart
+                    delete req.session.cart;
 
                     // Emit 
                     const eventEmitter = req.app.get('eventEmitter');
                     eventEmitter.emit('orderPlaced', placedOrder);
                     return res.redirect('/customer/orders');
+                })
+                .catch(err => {
+                    req.flash('error', 'Something went wrong');
+                    return res.redirect('/cart');
                 });
 
-            }).catch(err => {
-                req.flash('error', 'Something went wrong');
-                return res.redirect('/cart');
-            });
         },
         async index(req, res) {
             const orders = await Order.find({ customerId: req.user._id },
