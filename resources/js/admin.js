@@ -3,7 +3,7 @@ import axios from 'axios'
 import moment from 'moment'
 import Noty from 'noty'
 
-export function initAdmin() {
+export function initAdmin(socket) {
     const orderTableBody = document.querySelector('#orderTableBody')
     let orders = []
     let markup
@@ -13,12 +13,17 @@ export function initAdmin() {
             "X-Requested-With": "XMLHttpRequest"
         }
     }).then(res => {
-        orders = res.data
-        markup = generateMarkup(orders)
-        orderTableBody.innerHTML = markup
+        if (Array.isArray(res.data)) {
+            orders = res.data;
+        } else {
+            orders = []; // Fallback to an empty array
+        }
+        markup = generateMarkup(orders);
+        orderTableBody.innerHTML = markup;
     }).catch(err => {
-        console.log(err)
-    })
+        console.error("Error fetching orders:", err);
+    });
+    
 
     function renderItems(items) {
         let parsedItems = Object.values(items)
