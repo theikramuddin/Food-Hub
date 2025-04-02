@@ -48,7 +48,11 @@ function cartController() {
             }
 
 
-            return res.json({totalQty: req.session.cart.totalQty})
+            // return res.json({totalQty: req.session.cart.totalQty})
+            req.session.save(() => {
+                return res.json({ totalQty: req.session.cart ? req.session.cart.totalQty : 0 });
+            });
+            
         }
     }
 }

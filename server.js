@@ -11,9 +11,15 @@ const flash = require('express-flash');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const Emitter = require('events');
+const dialogflowRoutes = require("./routes/dialogflowRoutes");
+
+
+app.use("/webhook", dialogflowRoutes);
+
 
 // Database Connection
-mongoose.connect(process.env.MONGO_CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+const url = 'mongodb://localhost/food'
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const connection = mongoose.connection;
 connection.once('open', () => {
@@ -30,7 +36,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGO_CONNECTION_URL,
+        mongoUrl: url,
         collectionName: 'sessions'
     }),
     cookie: { maxAge: 1000 * 60 * 60 * 24 } // valid for 24 hours cookies
@@ -83,6 +89,6 @@ eventEmitter.on('orderUpdated', (data) => {
     io.to(`order_${data.id}`).emit('orderUpdated', data);
 });
 
-eventEmitter.on('oredrPlaced', (data) => {
+eventEmitter.on('orderPlaced', (data) => {
     io.to('adminRoom').emit('orderPlaced', data);
-})
+});

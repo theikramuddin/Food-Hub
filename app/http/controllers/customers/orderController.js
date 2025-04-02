@@ -20,13 +20,13 @@ function orderController() {
 
             order.save()
                 .then(async (result) => {
-                    let placedOrder = await result.populate('customerId').execPopulate(); // ✅ Modern way
+                    let placedOrder = await result.populate('customerId'); // ✅ Modern way
                     req.flash('success', 'Order placed successfully');
-                    delete req.session.cart;
+                    req.session.cart = null;
 
                     // Emit 
                     const eventEmitter = req.app.get('eventEmitter');
-                    eventEmitter.emit('orderPlaced', placedOrder);
+                    eventEmitter.emit('orderPlaced', placedOrder); 
                     return res.redirect('/customer/orders');
                 })
                 .catch(err => {
